@@ -1,0 +1,40 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Recipe Book</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="container">
+    <section class="hero">
+        <div>
+            <div class="eyebrow">Homemade recipes</div>
+            <h1>Твоята красива книга с рецепти</h1>
+            <p>Събирай домашни ястия, добавяй снимки, пази любими рецепти и управлявай всичко през приятен Spring MVC сайт.</p>
+            <div class="hero-actions" th:unless="${currentUser.loggedIn}">
+                <a class="btn" href="/register">Създай профил</a>
+                <a class="btn secondary" href="/login">Вход</a>
+            </div>
+            <div class="hero-actions" th:if="${currentUser.loggedIn}">
+                <a class="btn" href="/recipes">Разгледай рецепти</a>
+                <a class="btn secondary" href="/recipes/create">Добави рецепта</a>
+            </div>
+        </div>
+        <div class="hero-collage">
+            <img src="/images/lasagna-tray.jpg" alt="Lasagna">
+            <img src="/images/caprese.jpg" alt="Caprese salad">
+            <img src="/images/dessert.jpg" alt="Dessert">
+        </div>
+    </section>
+    <section>
+        <div class="section-title">
+            <div><h2>Какво има в проекта?</h2><p>Напълно работеща структура за изпитен Spring Fundamentals проект.</p></div>
+        </div>
+        <div class="grid">
+            <div class="card"><div class="card-body"><span class="tag">CRUD</span><h3>Рецепти</h3><p>Създаване, редакция, детайли и изтриване на рецепти.</p></div></div>
+            <div class="card"><div class="card-body"><span class="tag">Security</span><h3>Session login</h3><p>Регистрация, вход, роли USER/ADMIN и защитени endpoints.</p></div></div>
+            <div class="card"><div class="card-body"><span class="tag">UX</span><h3>Красив интерфейс</h3><p>Карти със снимки, responsive layout, форми и съобщения.</p></div></div>
+        </div>
+    </section>
+</main>
+<div th:replace="~{fragments :: footer}"></div>
+</body>
+</html>

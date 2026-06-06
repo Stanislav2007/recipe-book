@@ -1,0 +1,9 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Error</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="container auth-card"><section class="panel"><div class="eyebrow">Something went wrong</div><h1>Oops!</h1><p class="error" th:text="${errorMessage}">Error message</p><a class="btn" href="/">Back home</a></section></main>
+<div th:replace="~{fragments :: footer}"></div>
+</body>
+</html>
