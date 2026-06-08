@@ -1,29 +1,41 @@
-package bg.softuni.recipebook.controller;
+package bg.softuni.recipebook.dto;
 
-import bg.softuni.recipebook.dto.RecipeRequest;
-import bg.softuni.recipebook.service.CategoryService;
-import bg.softuni.recipebook.service.RecipeService;
-import jakarta.validation.Valid;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.validation.constraints.*;
 import java.util.UUID;
 
-@Controller
-@RequestMapping("/recipes")
-public class RecipeController {
-    private final RecipeService recipeService;
-    private final CategoryService categoryService;
-    public RecipeController(RecipeService recipeService, CategoryService categoryService) { this.recipeService = recipeService; this.categoryService = categoryService; }
-    @GetMapping public String all(Model model) { model.addAttribute("recipes", recipeService.findAllRecipes()); return "recipe/list"; }
-    @GetMapping("/my") public String my(Model model) { model.addAttribute("recipes", recipeService.findMyRecipes()); return "recipe/my"; }
-    @GetMapping("/{id}") public String details(@PathVariable UUID id, Model model) { model.addAttribute("recipe", recipeService.findById(id)); return "recipe/details"; }
-    @GetMapping("/create") public String create(Model model) { addFormAttributes(model, new RecipeRequest()); return "recipe/create"; }
-    @PostMapping("/create") public String create(@Valid RecipeRequest recipeRequest, BindingResult bindingResult, Model model) { if (bindingResult.hasErrors()) { addFormAttributes(model, recipeRequest); return "recipe/create"; } recipeService.create(recipeRequest); return "redirect:/recipes"; }
-    @GetMapping("/{id}/edit") public String edit(@PathVariable UUID id, Model model) { addFormAttributes(model, recipeService.mapToRequest(recipeService.findById(id))); model.addAttribute("recipeId", id); return "recipe/edit"; }
-    @PostMapping("/{id}/edit") public String edit(@PathVariable UUID id, @Valid RecipeRequest recipeRequest, BindingResult bindingResult, Model model) { if (bindingResult.hasErrors()) { addFormAttributes(model, recipeRequest); model.addAttribute("recipeId", id); return "recipe/edit"; } recipeService.update(id, recipeRequest); return "redirect:/recipes/" + id; }
-    @PostMapping("/{id}/delete") public String delete(@PathVariable UUID id, RedirectAttributes redirectAttributes) { recipeService.delete(id); redirectAttributes.addFlashAttribute("message", "Recipe deleted successfully."); return "redirect:/recipes"; }
-    private void addFormAttributes(Model model, RecipeRequest request) { model.addAttribute("recipeRequest", request); model.addAttribute("categories", categoryService.findAll()); }
+public class RecipeRequest {
+    @NotBlank(message = "Title is required.")
+    @Size(min = 3, max = 80, message = "Title must be between 3 and 80 characters.")
+    private String title;
+
+    @NotBlank(message = "Ingredients are required.")
+    @Size(min = 10, max = 500, message = "Ingredients must be between 10 and 500 characters.")
+    private String ingredients;
+
+    @NotBlank(message = "Instructions are required.")
+    @Size(min = 20, max = 1500, message = "Instructions must be between 20 and 1500 characters.")
+    private String instructions;
+
+    @Min(value = 1, message = "Cooking time must be at least 1 minute.")
+    @Max(value = 600, message = "Cooking time cannot be more than 600 minutes.")
+    private int cookingMinutes;
+
+    @Size(max = 255, message = "Image path is too long.")
+    private String imageUrl;
+
+    @NotNull(message = "Category is required.")
+    private UUID categoryId;
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getIngredients() { return ingredients; }
+    public void setIngredients(String ingredients) { this.ingredients = ingredients; }
+    public String getInstructions() { return instructions; }
+    public void setInstructions(String instructions) { this.instructions = instructions; }
+    public int getCookingMinutes() { return cookingMinutes; }
+    public void setCookingMinutes(int cookingMinutes) { this.cookingMinutes = cookingMinutes; }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public UUID getCategoryId() { return categoryId; }
+    public void setCategoryId(UUID categoryId) { this.categoryId = categoryId; }
 }

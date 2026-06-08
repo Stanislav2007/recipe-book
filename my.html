@@ -1,0 +1,27 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Recipes</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="container">
+    <div class="section-title">
+        <div><h1>All Recipes</h1><p>Разгледай домашните рецепти в колекцията.</p></div>
+        <a class="btn" href="/recipes/create">+ New recipe</a>
+    </div>
+    <p class="success" th:if="${message}" th:text="${message}"></p>
+    <div class="empty" th:if="${#lists.isEmpty(recipes)}">Все още няма рецепти. Добави първата!</div>
+    <div class="grid">
+        <article class="card" th:each="recipe : ${recipes}">
+            <img class="recipe-img" th:src="${recipe.imageUrl != null and !#strings.isEmpty(recipe.imageUrl) ? recipe.imageUrl : '/images/lasagna-plate.jpg'}" th:alt="${recipe.title}">
+            <div class="card-body">
+                <span class="tag" th:text="${recipe.category.name}">Dinner</span>
+                <h3 th:text="${recipe.title}">Recipe title</h3>
+                <div class="meta"><span th:text="${recipe.cookingMinutes} + ' min'"></span><span th:text="'By ' + ${recipe.author.username}"></span></div>
+                <a class="btn secondary" th:href="@{/recipes/{id}(id=${recipe.id})}">Details</a>
+            </div>
+        </article>
+    </div>
+</main>
+<div th:replace="~{fragments :: footer}"></div>
+</body>
+</html>

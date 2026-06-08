@@ -1,0 +1,22 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Edit Recipe</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="container form-page">
+    <section class="panel">
+        <h1>Edit Recipe</h1>
+        <form method="post" th:action="@{/recipes/{id}/edit(id=${recipeId})}" th:object="${recipeRequest}" class="form-grid">
+            <div class="field full"><label>Title</label><input th:field="*{title}"><div class="error" th:errors="*{title}"></div></div>
+            <div><label>Category</label><select th:field="*{categoryId}"><option value="">Choose category</option><option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option></select><div class="error" th:errors="*{categoryId}"></div></div>
+            <div><label>Cooking minutes</label><input type="number" th:field="*{cookingMinutes}" min="1" max="600"><div class="error" th:errors="*{cookingMinutes}"></div></div>
+            <div class="field full"><label>Image path or URL</label><input th:field="*{imageUrl}"><div class="error" th:errors="*{imageUrl}"></div></div>
+            <div class="field full"><label>Ingredients</label><textarea th:field="*{ingredients}"></textarea><div class="error" th:errors="*{ingredients}"></div></div>
+            <div class="field full"><label>Instructions</label><textarea th:field="*{instructions}"></textarea><div class="error" th:errors="*{instructions}"></div></div>
+            <div class="actions"><button class="btn">Update recipe</button><a class="btn secondary" th:href="@{/recipes/{id}(id=${recipeId})}">Cancel</a></div>
+        </form>
+    </section>
+</main>
+<div th:replace="~{fragments :: footer}"></div>
+</body>
+</html>

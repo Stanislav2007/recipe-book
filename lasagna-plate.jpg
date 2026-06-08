@@ -1,0 +1,25 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Admin Dashboard</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="container">
+    <div class="section-title"><div><h1>Admin Dashboard</h1><p>Управление на потребители, категории и рецепти.</p></div></div>
+    <p class="success" th:if="${message}" th:text="${message}"></p>
+    <section class="panel">
+        <h2>Create Category</h2>
+        <form method="post" th:action="@{/admin/categories}" th:object="${categoryRequest}" class="form-grid">
+            <div><label>Name</label><input th:field="*{name}"><div class="error" th:errors="*{name}"></div></div>
+            <div><label>Description</label><input th:field="*{description}"><div class="error" th:errors="*{description}"></div></div>
+            <div class="actions"><button class="btn">Add category</button></div>
+        </form>
+    </section>
+    <div class="grid" style="margin-top:22px">
+        <section class="panel"><h2>Users</h2><div class="table-wrap"><table><tr><th>Username</th><th>Email</th><th>Role</th></tr><tr th:each="user : ${users}"><td th:text="${user.username}"></td><td th:text="${user.email}"></td><td th:text="${user.role}"></td></tr></table></div></section>
+        <section class="panel"><h2>Categories</h2><div class="table-wrap"><table><tr><th>Name</th><th>Description</th></tr><tr th:each="category : ${categories}"><td th:text="${category.name}"></td><td th:text="${category.description}"></td></tr></table></div></section>
+    </div>
+    <section class="panel" style="margin-top:22px"><h2>Recipes</h2><div class="table-wrap"><table><tr><th>Title</th><th>Category</th><th>Author</th><th></th></tr><tr th:each="recipe : ${recipes}"><td th:text="${recipe.title}"></td><td th:text="${recipe.category.name}"></td><td th:text="${recipe.author.username}"></td><td><a class="btn secondary" th:href="@{/recipes/{id}(id=${recipe.id})}">Open</a></td></tr></table></div></section>
+</main>
+<div th:replace="~{fragments :: footer}"></div>
+</body>
+</html>

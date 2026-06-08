@@ -1,21 +1,14 @@
-package bg.softuni.recipebook.config;
+package bg.softuni.recipebook.controller;
 
-import bg.softuni.recipebook.service.CurrentUser;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.HandlerInterceptor;
+import bg.softuni.recipebook.exception.BusinessRuleException;
+import bg.softuni.recipebook.exception.ForbiddenActionException;
+import bg.softuni.recipebook.exception.NotFoundException;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
-@Component
-public class AuthInterceptor implements HandlerInterceptor {
-    private final CurrentUser currentUser;
-    public AuthInterceptor(CurrentUser currentUser) { this.currentUser = currentUser; }
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String uri = request.getRequestURI();
-        boolean guestAllowed = uri.equals("/") || uri.equals("/login") || uri.equals("/register") || uri.startsWith("/css") || uri.startsWith("/images") || uri.startsWith("/h2-console") || uri.equals("/error");
-        if (!currentUser.isLoggedIn() && !guestAllowed) { response.sendRedirect("/login"); return false; }
-        if (uri.startsWith("/admin") && !currentUser.isAdmin()) { response.sendRedirect("/recipes"); return false; }
-        return true;
-    }
+@ControllerAdvice
+public class ErrorControllerAdvice {
+    @ExceptionHandler({BusinessRuleException.class, ForbiddenActionException.class, NotFoundException.class})
+    public String handleDomainErrors(RuntimeException ex, Model model) { model.addAttribute("message", ex.getMessage()); return "error/custom-error"; }
 }

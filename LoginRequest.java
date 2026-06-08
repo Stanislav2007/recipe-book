@@ -1,9 +1,22 @@
-package bg.softuni.recipebook.controller;
+package bg.softuni.recipebook.dto;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+import jakarta.validation.constraints.*;
 
-@Controller
-public class HomeController {
-    @GetMapping("/") public String home() { return "index"; }
+public class RegisterRequest {
+    @NotBlank @Size(min = 3, max = 30)
+    private String username;
+    @NotBlank @Email @Size(max = 80)
+    private String email;
+    @NotBlank @Size(min = 6, max = 60)
+    private String password;
+    @NotBlank @Size(min = 6, max = 60)
+    private String confirmPassword;
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    public String getConfirmPassword() { return confirmPassword; }
+    public void setConfirmPassword(String confirmPassword) { this.confirmPassword = confirmPassword; }
 }

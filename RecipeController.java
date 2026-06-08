@@ -1,12 +1,9 @@
-package bg.softuni.recipebook.config;
+package bg.softuni.recipebook.controller;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 
-@Configuration
-public class WebConfig implements WebMvcConfigurer {
-    private final AuthInterceptor authInterceptor;
-    public WebConfig(AuthInterceptor authInterceptor) { this.authInterceptor = authInterceptor; }
-    @Override public void addInterceptors(InterceptorRegistry registry) { registry.addInterceptor(authInterceptor); }
+@Controller
+public class HomeController {
+    @GetMapping("/") public String home() { return "index"; }
 }
