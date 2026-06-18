@@ -1,31 +1,22 @@
-package bg.softuni.recipebook.model.entity;
+package bg.softuni.recipebook.dto;
 
-import bg.softuni.recipebook.model.enums.UserRole;
-import jakarta.persistence.*;
-import java.util.UUID;
+import jakarta.validation.constraints.*;
 
-@Entity
-@Table(name = "users")
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-    @Column(nullable = false, unique = true, length = 30)
+public class RegisterRequest {
+    @NotBlank @Size(min = 3, max = 30)
     private String username;
-    @Column(nullable = false, unique = true, length = 80)
+    @NotBlank @Email @Size(max = 80)
     private String email;
-    @Column(nullable = false)
+    @NotBlank @Size(min = 6, max = 60)
     private String password;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserRole role;
-    public UUID getId() { return id; }
+    @NotBlank @Size(min = 6, max = 60)
+    private String confirmPassword;
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
-    public UserRole getRole() { return role; }
-    public void setRole(UserRole role) { this.role = role; }
+    public String getConfirmPassword() { return confirmPassword; }
+    public void setConfirmPassword(String confirmPassword) { this.confirmPassword = confirmPassword; }
 }

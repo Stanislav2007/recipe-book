@@ -1,0 +1,21 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Login</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="container auth-card">
+    <section class="panel">
+        <div class="eyebrow">Welcome back</div>
+        <h1>Login</h1>
+        <p class="hint">Demo admin: username <b>demo</b>, password <b>demo123</b></p>
+        <p class="error" th:if="${loginError}" th:text="${loginError}"></p>
+        <form method="post" th:action="@{/login}" th:object="${loginRequest}">
+            <label>Username</label><input th:field="*{username}" placeholder="demo"><div class="error" th:errors="*{username}"></div>
+            <label>Password</label><input type="password" th:field="*{password}" placeholder="demo123"><div class="error" th:errors="*{password}"></div>
+            <div class="actions"><button class="btn">Login</button><a class="btn secondary" href="/register">Create account</a></div>
+        </form>
+    </section>
+</main>
+<div th:replace="~{fragments :: footer}"></div>
+</body>
+</html>

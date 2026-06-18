@@ -1,22 +1,12 @@
-package bg.softuni.recipebook.dto;
+package bg.softuni.recipebook.controller;
 
-import jakarta.validation.constraints.*;
+import bg.softuni.recipebook.service.CurrentUser;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
-public class RegisterRequest {
-    @NotBlank @Size(min = 3, max = 30)
-    private String username;
-    @NotBlank @Email @Size(max = 80)
-    private String email;
-    @NotBlank @Size(min = 6, max = 60)
-    private String password;
-    @NotBlank @Size(min = 6, max = 60)
-    private String confirmPassword;
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-    public String getConfirmPassword() { return confirmPassword; }
-    public void setConfirmPassword(String confirmPassword) { this.confirmPassword = confirmPassword; }
+@ControllerAdvice
+public class GlobalModelAdvice {
+    private final CurrentUser currentUser;
+    public GlobalModelAdvice(CurrentUser currentUser) { this.currentUser = currentUser; }
+    @ModelAttribute("currentUser") public CurrentUser currentUser() { return currentUser; }
 }

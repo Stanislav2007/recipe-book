@@ -1,22 +1,22 @@
-package bg.softuni.recipebook.dto;
+package bg.softuni.recipebook.controller;
 
-import jakarta.validation.constraints.*;
+import bg.softuni.recipebook.dto.CategoryRequest;
+import bg.softuni.recipebook.service.CategoryService;
+import bg.softuni.recipebook.service.RecipeService;
+import bg.softuni.recipebook.service.UserService;
+import jakarta.validation.Valid;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
-public class RegisterRequest {
-    @NotBlank @Size(min = 3, max = 30)
-    private String username;
-    @NotBlank @Email @Size(max = 80)
-    private String email;
-    @NotBlank @Size(min = 6, max = 60)
-    private String password;
-    @NotBlank @Size(min = 6, max = 60)
-    private String confirmPassword;
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-    public String getConfirmPassword() { return confirmPassword; }
-    public void setConfirmPassword(String confirmPassword) { this.confirmPassword = confirmPassword; }
+@Controller
+@RequestMapping("/admin")
+public class AdminController {
+    private final UserService userService;
+    private final RecipeService recipeService;
+    private final CategoryService categoryService;
+    public AdminController(UserService userService, RecipeService recipeService, CategoryService categoryService) { this.userService = userService; this.recipeService = recipeService; this.categoryService = categoryService; }
+    @GetMapping public String dashboard(Model model) { model.addAttribute("users", userService.findAllUsers()); model.addAttribute("recipes", recipeService.findAllRecipes()); model.addAttribute("categories", categoryService.findAll()); if (!model.containsAttribute("categoryRequest")) model.addAttribute("categoryRequest", new CategoryRequest()); return "admin/dashboard"; }
+    @PostMapping("/categories") public String createCategory(@Valid CategoryRequest categoryRequest, BindingResult bindingResult, Model model) { if (bindingResult.hasErrors()) { model.addAttribute("users", userService.findAllUsers()); model.addAttribute("recipes", recipeService.findAllRecipes()); model.addAttribute("categories", categoryService.findAll()); return "admin/dashboard"; } categoryService.create(categoryRequest); return "redirect:/admin"; }
 }

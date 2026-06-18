@@ -1,2 +1,2 @@
 package bg.softuni.recipebook.exception;
-public class ForbiddenActionException extends RuntimeException { public ForbiddenActionException(String message) { super(message); } }
+public class NotFoundException extends RuntimeException { public NotFoundException(String message) { super(message); } }

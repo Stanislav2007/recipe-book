@@ -1,18 +1,40 @@
-<!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head><title>My Recipes</title><link rel="stylesheet" href="/css/style.css"></head>
-<body>
-<div th:replace="~{fragments :: nav}"></div>
-<main class="container">
-    <div class="section-title"><div><h1>My Recipes</h1><p>Рецептите, които си създал.</p></div><a class="btn" href="/recipes/create">+ Add recipe</a></div>
-    <div class="empty" th:if="${#lists.isEmpty(recipes)}">Все още нямаш добавени рецепти.</div>
-    <div class="grid">
-        <article class="card" th:each="recipe : ${recipes}">
-            <img class="recipe-img" th:src="${recipe.imageUrl != null and !#strings.isEmpty(recipe.imageUrl) ? recipe.imageUrl : '/images/lasagna-plate.jpg'}" th:alt="${recipe.title}">
-            <div class="card-body"><span class="tag" th:text="${recipe.category.name}"></span><h3 th:text="${recipe.title}"></h3><div class="actions"><a class="btn secondary" th:href="@{/recipes/{id}(id=${recipe.id})}">Details</a><a class="btn secondary" th:href="@{/recipes/{id}/edit(id=${recipe.id})}">Edit</a></div></div>
-        </article>
-    </div>
-</main>
-<div th:replace="~{fragments :: footer}"></div>
-</body>
-</html>
+package bg.softuni.recipebook.service;
+
+import bg.softuni.recipebook.dto.LoginRequest;
+import bg.softuni.recipebook.dto.RegisterRequest;
+import bg.softuni.recipebook.exception.BusinessRuleException;
+import bg.softuni.recipebook.exception.NotFoundException;
+import bg.softuni.recipebook.model.entity.User;
+import bg.softuni.recipebook.model.enums.UserRole;
+import bg.softuni.recipebook.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class UserService {
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final CurrentUser currentUser;
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, CurrentUser currentUser) {
+        this.userRepository = userRepository; this.passwordEncoder = passwordEncoder; this.currentUser = currentUser;
+    }
+    public void register(RegisterRequest request) {
+        if (!request.getPassword().equals(request.getConfirmPassword())) throw new BusinessRuleException("Passwords do not match.");
+        if (userRepository.existsByUsername(request.getUsername())) throw new BusinessRuleException("Username already exists.");
+        if (userRepository.existsByEmail(request.getEmail())) throw new BusinessRuleException("Email already exists.");
+        User user = new User();
+        user.setUsername(request.getUsername()); user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(userRepository.count() == 0 ? UserRole.ADMIN : UserRole.USER);
+        userRepository.save(user);
+    }
+    public boolean login(LoginRequest request) {
+        return userRepository.findByUsername(request.getUsername()).filter(u -> passwordEncoder.matches(request.getPassword(), u.getPassword())).map(u -> { currentUser.login(u.getId(), u.getUsername(), u.getRole()); return true; }).orElse(false);
+    }
+    public void logout() { currentUser.logout(); }
+    public User getCurrentUserEntity() { if (!currentUser.isLoggedIn()) throw new BusinessRuleException("You must be logged in."); return findById(currentUser.getId()); }
+    public User findById(UUID id) { return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found.")); }
+    public List<User> findAllUsers() { return userRepository.findAll(); }
+}

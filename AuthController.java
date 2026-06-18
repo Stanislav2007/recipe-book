@@ -1,14 +1,21 @@
-package bg.softuni.recipebook.controller;
+package bg.softuni.recipebook.config;
 
-import bg.softuni.recipebook.exception.BusinessRuleException;
-import bg.softuni.recipebook.exception.ForbiddenActionException;
-import bg.softuni.recipebook.exception.NotFoundException;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
-@ControllerAdvice
-public class ErrorControllerAdvice {
-    @ExceptionHandler({BusinessRuleException.class, ForbiddenActionException.class, NotFoundException.class})
-    public String handleDomainErrors(RuntimeException ex, Model model) { model.addAttribute("message", ex.getMessage()); return "error/custom-error"; }
+@Configuration
+public class SecurityConfig {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+            .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+        return http.build();
+    }
+    @Bean
+    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 }

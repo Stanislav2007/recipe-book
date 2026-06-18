@@ -1,46 +1,31 @@
-package bg.softuni.recipebook.model.entity;
+package bg.softuni.recipebook.dto;
 
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.*;
 import java.util.UUID;
 
-@Entity
-@Table(name = "recipes")
-public class Recipe {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
-    @Column(nullable = false, length = 80)
+public class RecipeRequest {
+    @NotBlank(message = "Title is required.")
+    @Size(min = 3, max = 80, message = "Title must be between 3 and 80 characters.")
     private String title;
 
-    @Column(nullable = false, length = 500)
+    @NotBlank(message = "Ingredients are required.")
+    @Size(min = 10, max = 500, message = "Ingredients must be between 10 and 500 characters.")
     private String ingredients;
 
-    @Column(nullable = false, length = 1500)
+    @NotBlank(message = "Instructions are required.")
+    @Size(min = 20, max = 1500, message = "Instructions must be between 20 and 1500 characters.")
     private String instructions;
 
-    @Column(nullable = false)
+    @Min(value = 1, message = "Cooking time must be at least 1 minute.")
+    @Max(value = 600, message = "Cooking time cannot be more than 600 minutes.")
     private int cookingMinutes;
 
-    @Column(length = 255)
+    @Size(max = 255, message = "Image path is too long.")
     private String imageUrl;
 
-    @Column(nullable = false)
-    private LocalDateTime createdOn;
+    @NotNull(message = "Category is required.")
+    private UUID categoryId;
 
-    @ManyToOne(optional = false)
-    private Category category;
-
-    @ManyToOne(optional = false)
-    private User author;
-
-    @PrePersist
-    public void prePersist() {
-        this.createdOn = LocalDateTime.now();
-    }
-
-    public UUID getId() { return id; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
     public String getIngredients() { return ingredients; }
@@ -51,9 +36,6 @@ public class Recipe {
     public void setCookingMinutes(int cookingMinutes) { this.cookingMinutes = cookingMinutes; }
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-    public LocalDateTime getCreatedOn() { return createdOn; }
-    public Category getCategory() { return category; }
-    public void setCategory(Category category) { this.category = category; }
-    public User getAuthor() { return author; }
-    public void setAuthor(User author) { this.author = author; }
+    public UUID getCategoryId() { return categoryId; }
+    public void setCategoryId(UUID categoryId) { this.categoryId = categoryId; }
 }

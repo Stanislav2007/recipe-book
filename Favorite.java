@@ -1,21 +1,14 @@
-package bg.softuni.recipebook.model.entity;
+package bg.softuni.recipebook.dto;
 
-import jakarta.persistence.*;
-import java.util.UUID;
+import jakarta.validation.constraints.NotBlank;
 
-@Entity
-@Table(name = "categories")
-public class Category {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-    @Column(nullable = false, unique = true, length = 50)
-    private String name;
-    @Column(nullable = false, length = 255)
-    private String description;
-    public UUID getId() { return id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+public class LoginRequest {
+    @NotBlank
+    private String username;
+    @NotBlank
+    private String password;
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 }

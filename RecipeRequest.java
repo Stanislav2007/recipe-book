@@ -1,14 +1,14 @@
-package bg.softuni.recipebook.dto;
+package bg.softuni.recipebook.controller;
 
-import jakarta.validation.constraints.NotBlank;
+import bg.softuni.recipebook.exception.BusinessRuleException;
+import bg.softuni.recipebook.exception.ForbiddenActionException;
+import bg.softuni.recipebook.exception.NotFoundException;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
-public class LoginRequest {
-    @NotBlank
-    private String username;
-    @NotBlank
-    private String password;
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+@ControllerAdvice
+public class ErrorControllerAdvice {
+    @ExceptionHandler({BusinessRuleException.class, ForbiddenActionException.class, NotFoundException.class})
+    public String handleDomainErrors(RuntimeException ex, Model model) { model.addAttribute("message", ex.getMessage()); return "error/custom-error"; }
 }
