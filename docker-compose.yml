@@ -1,22 +1,55 @@
-<!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head><title>Edit Recipe</title><link rel="stylesheet" href="/css/style.css"></head>
-<body>
-<div th:replace="~{fragments :: nav}"></div>
-<main class="container form-page">
-    <section class="panel">
-        <h1>Edit Recipe</h1>
-        <form method="post" th:action="@{/recipes/{id}/edit(id=${recipeId})}" th:object="${recipeRequest}" class="form-grid">
-            <div class="field full"><label>Title</label><input th:field="*{title}"><div class="error" th:errors="*{title}"></div></div>
-            <div><label>Category</label><select th:field="*{categoryId}"><option value="">Choose category</option><option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option></select><div class="error" th:errors="*{categoryId}"></div></div>
-            <div><label>Cooking minutes</label><input type="number" th:field="*{cookingMinutes}" min="1" max="600"><div class="error" th:errors="*{cookingMinutes}"></div></div>
-            <div class="field full"><label>Image path or URL</label><input th:field="*{imageUrl}"><div class="error" th:errors="*{imageUrl}"></div></div>
-            <div class="field full"><label>Ingredients</label><textarea th:field="*{ingredients}"></textarea><div class="error" th:errors="*{ingredients}"></div></div>
-            <div class="field full"><label>Instructions</label><textarea th:field="*{instructions}"></textarea><div class="error" th:errors="*{instructions}"></div></div>
-            <div class="actions"><button class="btn">Update recipe</button><a class="btn secondary" th:href="@{/recipes/{id}(id=${recipeId})}">Cancel</a></div>
-        </form>
-    </section>
-</main>
-<div th:replace="~{fragments :: footer}"></div>
-</body>
-</html>
+services:
+  recipe-db:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: recipe_book
+    ports: ["3306:3306"]
+    volumes: ["recipe_data:/var/lib/mysql"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  meal-plan-db:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: meal_plan_db
+    ports: ["3307:3306"]
+    volumes: ["meal_plan_data:/var/lib/mysql"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  meal-plan-service:
+    build: ./meal-plan-service
+    environment:
+      MEAL_DB_URL: jdbc:mysql://meal-plan-db:3306/meal_plan_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      MEAL_DB_USERNAME: root
+      MEAL_DB_PASSWORD: root
+    ports: ["8081:8081"]
+    depends_on:
+      meal-plan-db:
+        condition: service_healthy
+
+  recipe-book:
+    build: .
+    environment:
+      DB_URL: jdbc:mysql://recipe-db:3306/recipe_book?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      MEAL_PLAN_SERVICE_URL: http://meal-plan-service:8081
+    ports: ["8080:8080"]
+    depends_on:
+      recipe-db:
+        condition: service_healthy
+      meal-plan-service:
+        condition: service_started
+
+volumes:
+  recipe_data:
+  meal_plan_data:
