@@ -1,23 +1,13 @@
-<!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head><title>Login</title><link rel="stylesheet" href="/css/style.css"></head>
-<body>
-<div th:replace="~{fragments :: nav}"></div>
-<main class="container auth-card">
-    <section class="panel">
-        <div class="eyebrow">Welcome back</div>
-        <h1>Login</h1>
-        <p class="hint">Demo admin: username <b>demo</b>, password <b>demo123</b></p>
-        <p class="success" th:if="${message}" th:text="${message}"></p>
-        <p class="error" th:if="${param.error}">Invalid username or password.</p>
-        <p class="success" th:if="${param.logout}">You have been logged out.</p>
-        <form method="post" th:action="@{/login}" th:object="${loginRequest}">
-            <label>Username</label><input th:field="*{username}" placeholder="demo"><div class="error" th:errors="*{username}"></div>
-            <label>Password</label><input type="password" th:field="*{password}" placeholder="demo123"><div class="error" th:errors="*{password}"></div>
-            <div class="actions"><button class="btn">Login</button><a class="btn secondary" href="/register">Create account</a></div>
-        </form>
-    </section>
-</main>
-<div th:replace="~{fragments :: footer}"></div>
-</body>
-</html>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion><parent><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-parent</artifactId><version>3.4.0</version><relativePath/></parent>
+  <groupId>bg.softuni</groupId><artifactId>meal-plan-service</artifactId><version>1.0.0</version><properties><java.version>17</java.version></properties>
+  <dependencies>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-web</artifactId></dependency>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-data-jpa</artifactId></dependency>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-validation</artifactId></dependency>
+    <dependency><groupId>com.mysql</groupId><artifactId>mysql-connector-j</artifactId><scope>runtime</scope></dependency>
+    <dependency><groupId>com.h2database</groupId><artifactId>h2</artifactId><scope>test</scope></dependency>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
+  </dependencies>
+  <build><plugins><plugin><groupId>org.springframework.boot</groupId><artifactId>spring-boot-maven-plugin</artifactId></plugin><plugin><groupId>org.jacoco</groupId><artifactId>jacoco-maven-plugin</artifactId><version>0.8.12</version><executions><execution><goals><goal>prepare-agent</goal></goals></execution><execution><id>report-and-check</id><phase>verify</phase><goals><goal>report</goal><goal>check</goal></goals><configuration><rules><rule><element>BUNDLE</element><limits><limit><counter>LINE</counter><value>COVEREDRATIO</value><minimum>0.70</minimum></limit></limits></rule></rules><excludes><exclude>**/dto/**</exclude><exclude>**/entity/**</exclude><exclude>**/*Application*</exclude></excludes></configuration></execution></executions></plugin></plugins></build>
+</project>
