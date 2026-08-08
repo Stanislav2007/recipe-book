@@ -1,12 +1,13 @@
-package bg.softuni.recipebook.controller;
+package bg.softuni.recipebook.repository;
 
-import bg.softuni.recipebook.service.CurrentUser;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import bg.softuni.recipebook.model.entity.Recipe;
+import bg.softuni.recipebook.model.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-@ControllerAdvice
-public class GlobalModelAdvice {
-    private final CurrentUser currentUser;
-    public GlobalModelAdvice(CurrentUser currentUser) { this.currentUser = currentUser; }
-    @ModelAttribute("currentUser") public CurrentUser currentUser() { return currentUser; }
+public interface RecipeRepository extends JpaRepository<Recipe, UUID> {
+    List<Recipe> findAllByAuthor(User author);
+    Optional<Recipe> findByTitleIgnoreCase(String title);
 }

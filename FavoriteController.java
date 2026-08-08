@@ -1,21 +1,42 @@
-package bg.softuni.recipebook.config;
+package bg.softuni.recipebook.service.scheduling;
 
-import bg.softuni.recipebook.service.CurrentUser;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import bg.softuni.recipebook.service.RecipeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
-public class AuthInterceptor implements HandlerInterceptor {
-    private final CurrentUser currentUser;
-    public AuthInterceptor(CurrentUser currentUser) { this.currentUser = currentUser; }
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String uri = request.getRequestURI();
-        boolean guestAllowed = uri.equals("/") || uri.equals("/login") || uri.equals("/register") || uri.startsWith("/css") || uri.startsWith("/images") || uri.startsWith("/h2-console") || uri.equals("/error");
-        if (!currentUser.isLoggedIn() && !guestAllowed) { response.sendRedirect("/login"); return false; }
-        if (uri.startsWith("/admin") && !currentUser.isAdmin()) { response.sendRedirect("/recipes"); return false; }
-        return true;
+public class RecipeMaintenanceJobs {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RecipeMaintenanceJobs.class);
+
+    private final RecipeService recipeService;
+    private final CacheManager cacheManager;
+
+    public RecipeMaintenanceJobs(RecipeService recipeService, CacheManager cacheManager) {
+        this.recipeService = recipeService;
+        this.cacheManager = cacheManager;
+    }
+
+    @Scheduled(cron = "${recipes.cache.warmup.cron:0 0 3 * * *}")
+    void rebuildRecipeCache() {
+        clearCache("recipes");
+        int recipeCount = recipeService.findAllRecipes().size();
+        LOGGER.info("Recipe cache rebuilt with {} recipes", recipeCount);
+    }
+
+    @Scheduled(fixedDelayString = "${cache.eviction.delay:1800000}")
+    void clearRecipeCaches() {
+        cacheManager.getCacheNames().forEach(this::clearCache);
+        LOGGER.info("Application caches cleared");
+    }
+
+    private void clearCache(String cacheName) {
+        Cache cache = cacheManager.getCache(cacheName);
+        if (cache != null) {
+            cache.clear();
+        }
     }
 }

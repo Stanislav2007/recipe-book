@@ -1,11 +1,14 @@
-package bg.softuni.recipebook.repository;
+package bg.softuni.recipebook.dto;
 
-import bg.softuni.recipebook.model.entity.Recipe;
-import bg.softuni.recipebook.model.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
-import java.util.UUID;
+import jakarta.validation.constraints.*;
 
-public interface RecipeRepository extends JpaRepository<Recipe, UUID> {
-    List<Recipe> findAllByAuthor(User author);
+public class CategoryRequest {
+    @NotBlank @Size(min = 3, max = 50)
+    private String name;
+    @NotBlank @Size(min = 5, max = 255)
+    private String description;
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 }

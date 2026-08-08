@@ -1,9 +1,17 @@
-<!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head><title>Error</title><link rel="stylesheet" href="/css/style.css"></head>
-<body>
-<div th:replace="~{fragments :: nav}"></div>
-<main class="container auth-card"><section class="panel"><div class="eyebrow">Something went wrong</div><h1>Oops!</h1><p class="error" th:text="${errorMessage}">Error message</p><a class="btn" href="/">Back home</a></section></main>
-<div th:replace="~{fragments :: footer}"></div>
-</body>
-</html>
+package bg.softuni.recipebook;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+@EnableCaching
+@EnableScheduling
+@EnableFeignClients
+@SpringBootApplication
+public class RecipeBookApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(RecipeBookApplication.class, args);
+    }
+}

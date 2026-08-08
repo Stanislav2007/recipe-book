@@ -1,3 +1,8 @@
-package bg.softuni.recipebook.model.enums;
+package bg.softuni.recipebook.dto.mealplan;
 
-public enum UserRole { USER, ADMIN }
+import java.time.LocalDate;
+import java.util.UUID;
+
+public record MealPlanResponse(UUID id, UUID userId, UUID recipeId, String recipeTitle,
+                               LocalDate plannedDate, String mealType, boolean completed) {
+}

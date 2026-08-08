@@ -1,23 +1,74 @@
-<!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head><title>Create Recipe</title><link rel="stylesheet" href="/css/style.css"></head>
-<body>
-<div th:replace="~{fragments :: nav}"></div>
-<main class="container form-page">
-    <section class="panel">
-        <h1>Create Recipe</h1>
-        <p class="hint">Добави заглавие, категория, снимка и инструкции. За снимка можеш да използваш пример: /images/lasagna-tray.jpg</p>
-        <form method="post" th:action="@{/recipes/create}" th:object="${recipeRequest}" class="form-grid">
-            <div class="field full"><label>Title</label><input th:field="*{title}" placeholder="Домашна лазаня"><div class="error" th:errors="*{title}"></div></div>
-            <div><label>Category</label><select th:field="*{categoryId}"><option value="">Choose category</option><option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option></select><div class="error" th:errors="*{categoryId}"></div></div>
-            <div><label>Cooking minutes</label><input type="number" th:field="*{cookingMinutes}" min="1" max="600"><div class="error" th:errors="*{cookingMinutes}"></div></div>
-            <div class="field full"><label>Image path or URL</label><input th:field="*{imageUrl}" placeholder="/images/caprese.jpg"><p class="hint">Налични примерни снимки: /images/caprese.jpg, /images/lasagna-tray.jpg, /images/dessert.jpg, /images/shopska.jpg, /images/caesar.jpg, /images/burger.jpg, /images/rolls.jpg</p><div class="error" th:errors="*{imageUrl}"></div></div>
-            <div class="field full"><label>Ingredients</label><textarea th:field="*{ingredients}" placeholder="домати, моцарела, босилек..."></textarea><div class="error" th:errors="*{ingredients}"></div></div>
-            <div class="field full"><label>Instructions</label><textarea th:field="*{instructions}" placeholder="Опиши стъпките за приготвяне..."></textarea><div class="error" th:errors="*{instructions}"></div></div>
-            <div class="actions"><button class="btn">Save recipe</button><a class="btn secondary" href="/recipes">Cancel</a></div>
-        </form>
-    </section>
-</main>
-<div th:replace="~{fragments :: footer}"></div>
-</body>
-</html>
+package bg.softuni.recipebook.model.entity;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Entity
+@Table(name = "recipes")
+public class Recipe {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @NotBlank
+    @Size(min = 3, max = 80)
+    @Column(nullable = false, length = 80)
+    private String title;
+
+    @NotBlank
+    @Size(min = 10, max = 500)
+    @Column(nullable = false, length = 500)
+    private String ingredients;
+
+    @NotBlank
+    @Size(min = 20, max = 1500)
+    @Column(nullable = false, length = 1500)
+    private String instructions;
+
+    @Min(1)
+    @Max(600)
+    @Column(nullable = false)
+    private int cookingMinutes;
+
+    @Column(length = 255)
+    private String imageUrl;
+
+    @Column(nullable = false)
+    private LocalDateTime createdOn;
+
+    @NotNull
+    @ManyToOne(optional = false)
+    private Category category;
+
+    @NotNull
+    @ManyToOne(optional = false)
+    private User author;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdOn = LocalDateTime.now();
+    }
+
+    public UUID getId() { return id; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getIngredients() { return ingredients; }
+    public void setIngredients(String ingredients) { this.ingredients = ingredients; }
+    public String getInstructions() { return instructions; }
+    public void setInstructions(String instructions) { this.instructions = instructions; }
+    public int getCookingMinutes() { return cookingMinutes; }
+    public void setCookingMinutes(int cookingMinutes) { this.cookingMinutes = cookingMinutes; }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public LocalDateTime getCreatedOn() { return createdOn; }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
+    public User getAuthor() { return author; }
+    public void setAuthor(User author) { this.author = author; }
+}

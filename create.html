@@ -1,13 +1,18 @@
-package bg.softuni.recipebook.repository;
+package bg.softuni.recipebook.dto.mealplan;
 
-import bg.softuni.recipebook.model.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.Optional;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Size;
+
+import java.time.LocalDate;
 import java.util.UUID;
 
-public interface UserRepository extends JpaRepository<User, UUID> {
-    Optional<User> findByUsername(String username);
-    Optional<User> findByEmail(String email);
-    boolean existsByUsername(String username);
-    boolean existsByEmail(String email);
+public record MealPlanRequest(
+        @NotNull UUID userId,
+        @NotNull UUID recipeId,
+        @NotBlank @Size(max = 120) String recipeTitle,
+        @NotNull @FutureOrPresent LocalDate plannedDate,
+        @NotBlank @Size(max = 30) @Pattern(regexp = "(?i)Breakfast|Lunch|Dinner|Snack") String mealType) {
 }

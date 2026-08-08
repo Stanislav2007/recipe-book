@@ -1,14 +1,13 @@
-package bg.softuni.recipebook.controller;
+package bg.softuni.recipebook.repository;
 
-import bg.softuni.recipebook.exception.BusinessRuleException;
-import bg.softuni.recipebook.exception.ForbiddenActionException;
-import bg.softuni.recipebook.exception.NotFoundException;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import bg.softuni.recipebook.model.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
+import java.util.UUID;
 
-@ControllerAdvice
-public class ErrorControllerAdvice {
-    @ExceptionHandler({BusinessRuleException.class, ForbiddenActionException.class, NotFoundException.class})
-    public String handleDomainErrors(RuntimeException ex, Model model) { model.addAttribute("message", ex.getMessage()); return "error/custom-error"; }
+public interface UserRepository extends JpaRepository<User, UUID> {
+    Optional<User> findByUsername(String username);
+    Optional<User> findByEmail(String email);
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
 }

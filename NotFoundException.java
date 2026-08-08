@@ -1,31 +1,51 @@
-package bg.softuni.recipebook.controller;
+package bg.softuni.recipebook.service;
 
-import bg.softuni.recipebook.dto.LoginRequest;
-import bg.softuni.recipebook.dto.RegisterRequest;
+import bg.softuni.recipebook.dto.CategoryRequest;
 import bg.softuni.recipebook.exception.BusinessRuleException;
-import bg.softuni.recipebook.service.UserService;
-import jakarta.validation.Valid;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import bg.softuni.recipebook.exception.NotFoundException;
+import bg.softuni.recipebook.model.entity.Category;
+import bg.softuni.recipebook.repository.CategoryRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@Controller
-public class AuthController {
-    private final UserService userService;
-    public AuthController(UserService userService) { this.userService = userService; }
-    @GetMapping("/register") public String register(Model model) { if (!model.containsAttribute("registerRequest")) model.addAttribute("registerRequest", new RegisterRequest()); return "auth/register"; }
-    @PostMapping("/register") public String register(@Valid RegisterRequest registerRequest, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) { redirectAttributes.addFlashAttribute("registerRequest", registerRequest); redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.registerRequest", bindingResult); return "redirect:/register"; }
-        try { userService.register(registerRequest); } catch (BusinessRuleException e) { redirectAttributes.addFlashAttribute("registerRequest", registerRequest); redirectAttributes.addFlashAttribute("error", e.getMessage()); return "redirect:/register"; }
-        return "redirect:/login";
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class CategoryService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CategoryService.class);
+    private final CategoryRepository categoryRepository;
+
+    public CategoryService(CategoryRepository categoryRepository) { this.categoryRepository = categoryRepository; }
+
+    @Transactional
+    public void seedCategories() {
+        List.of("Breakfast", "Lunch", "Dinner", "Dessert", "Vegetarian").forEach(name ->
+                categoryRepository.findByName(name).orElseGet(() -> {
+                    Category category = new Category();
+                    category.setName(name);
+                    category.setDescription(name + " recipes");
+                    return categoryRepository.save(category);
+                }));
     }
-    @GetMapping("/login") public String login(Model model) { if (!model.containsAttribute("loginRequest")) model.addAttribute("loginRequest", new LoginRequest()); return "auth/login"; }
-    @PostMapping("/login") public String login(@Valid LoginRequest loginRequest, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) { redirectAttributes.addFlashAttribute("loginRequest", loginRequest); redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.loginRequest", bindingResult); return "redirect:/login"; }
-        if (!userService.login(loginRequest)) { redirectAttributes.addFlashAttribute("loginRequest", loginRequest); redirectAttributes.addFlashAttribute("error", "Invalid username or password."); return "redirect:/login"; }
-        return "redirect:/recipes";
+
+    public List<Category> findAll() { return categoryRepository.findAll(); }
+
+    public Category findById(UUID id) {
+        return categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found."));
     }
-    @PostMapping("/logout") public String logout() { userService.logout(); return "redirect:/"; }
+
+    @Transactional
+    public void create(CategoryRequest request) {
+        if (categoryRepository.findByName(request.getName().trim()).isPresent()) {
+            throw new BusinessRuleException("Category already exists.");
+        }
+        Category category = new Category();
+        category.setName(request.getName().trim());
+        category.setDescription(request.getDescription().trim());
+        Category saved = categoryRepository.save(category);
+        LOGGER.info("Created category {}", saved.getId());
+    }
 }

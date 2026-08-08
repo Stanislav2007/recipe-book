@@ -1,22 +1,24 @@
-package bg.softuni.recipebook.service;
+package bg.softuni.recipebook.model.entity;
 
-import bg.softuni.recipebook.dto.CategoryRequest;
-import bg.softuni.recipebook.exception.BusinessRuleException;
-import bg.softuni.recipebook.exception.NotFoundException;
-import bg.softuni.recipebook.model.entity.Category;
-import bg.softuni.recipebook.repository.CategoryRepository;
-import org.springframework.stereotype.Service;
-import java.util.List;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
-@Service
-public class CategoryService {
-    private final CategoryRepository categoryRepository;
-    public CategoryService(CategoryRepository categoryRepository) { this.categoryRepository = categoryRepository; }
-    public void seedCategories() {
-        List.of("Breakfast", "Lunch", "Dinner", "Dessert", "Vegetarian").forEach(name -> categoryRepository.findByName(name).orElseGet(() -> { Category c = new Category(); c.setName(name); c.setDescription(name + " recipes"); return categoryRepository.save(c); }));
-    }
-    public List<Category> findAll() { return categoryRepository.findAll(); }
-    public Category findById(UUID id) { return categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found.")); }
-    public void create(CategoryRequest request) { if (categoryRepository.findByName(request.getName()).isPresent()) throw new BusinessRuleException("Category already exists."); Category c = new Category(); c.setName(request.getName()); c.setDescription(request.getDescription()); categoryRepository.save(c); }
+@Entity
+@Table(name = "favorites", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "recipe_id"}))
+public class Favorite {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+    @NotNull
+    @ManyToOne(optional = false)
+    private User user;
+    @NotNull
+    @ManyToOne(optional = false)
+    private Recipe recipe;
+    public UUID getId() { return id; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+    public Recipe getRecipe() { return recipe; }
+    public void setRecipe(Recipe recipe) { this.recipe = recipe; }
 }

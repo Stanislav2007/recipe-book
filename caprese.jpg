@@ -1,21 +1,32 @@
-package bg.softuni.recipebook.service;
-
-import bg.softuni.recipebook.exception.BusinessRuleException;
-import bg.softuni.recipebook.model.entity.Favorite;
-import bg.softuni.recipebook.model.entity.Recipe;
-import bg.softuni.recipebook.model.entity.User;
-import bg.softuni.recipebook.repository.FavoriteRepository;
-import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.UUID;
-
-@Service
-public class FavoriteService {
-    private final FavoriteRepository favoriteRepository;
-    private final UserService userService;
-    private final RecipeService recipeService;
-    public FavoriteService(FavoriteRepository favoriteRepository, UserService userService, RecipeService recipeService) { this.favoriteRepository = favoriteRepository; this.userService = userService; this.recipeService = recipeService; }
-    public void add(UUID recipeId) { User user = userService.getCurrentUserEntity(); Recipe recipe = recipeService.findById(recipeId); if (favoriteRepository.existsByUserAndRecipe(user, recipe)) throw new BusinessRuleException("Recipe is already in favorites."); Favorite f = new Favorite(); f.setUser(user); f.setRecipe(recipe); favoriteRepository.save(f); }
-    public void remove(UUID recipeId) { User user = userService.getCurrentUserEntity(); Recipe recipe = recipeService.findById(recipeId); favoriteRepository.findByUserAndRecipe(user, recipe).ifPresent(favoriteRepository::delete); }
-    public List<Favorite> findMyFavorites() { return favoriteRepository.findAllByUser(userService.getCurrentUserEntity()); }
-}
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title th:text="${recipe.title}">Recipe</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="container">
+    <div class="details-grid">
+        <img class="recipe-img large" th:src="${recipe.imageUrl != null and !#strings.isEmpty(recipe.imageUrl) ? recipe.imageUrl : '/images/lasagna-plate.jpg'}" th:alt="${recipe.title}">
+        <section class="panel">
+            <span class="tag" th:text="${recipe.category.name}">Category</span>
+            <h1 th:text="${recipe.title}">Recipe title</h1>
+            <div class="meta"><span th:text="${recipe.cookingMinutes} + ' minutes'"></span><span th:text="'Author: ' + ${recipe.author.username}"></span></div>
+            <h3>Ingredients</h3>
+            <div class="content-block" th:text="${recipe.ingredients}"></div>
+            <h3>Instructions</h3>
+            <div class="content-block" th:text="${recipe.instructions}"></div>
+            <div class="actions">
+                <form class="inline" method="post" th:action="@{/favorites/{id}/add(id=${recipe.id})}"><button class="btn">Add to favorites</button></form>
+                <form class="inline" method="post" th:action="@{/meal-plans/recipe/{id}(id=${recipe.id})}">
+                    <input type="date" name="plannedDate" required>
+                    <select name="mealType"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select>
+                    <button class="btn secondary">Plan meal</button>
+                </form>
+                <a class="btn secondary" th:href="@{/recipes/{id}/edit(id=${recipe.id})}">Edit</a>
+                <form class="inline" method="post" th:action="@{/recipes/{id}/delete(id=${recipe.id})}"><button class="danger" onclick="return confirm('Delete this recipe?')">Delete</button></form>
+            </div>
+        </section>
+    </div>
+</main>
+<div th:replace="~{fragments :: footer}"></div>
+</body>
+</html>
